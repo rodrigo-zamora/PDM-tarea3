@@ -1,8 +1,10 @@
-// ignore_for_file: prefer_const_constructors, must_be_immutable, unused_field, non_constant_identifier_names, unused_element, avoid_print
+// ignore_for_file: prefer_const_constructors, must_be_immutable, unused_field, non_constant_identifier_names, unused_element, avoid_print, unused_local_variable
 
 import 'package:book_repository/home/book_bloc/book_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -45,17 +47,7 @@ class HomePage extends StatelessWidget {
 
   BlocConsumer<BookBloc, BookState> _buildBookList() {
     return BlocConsumer<BookBloc, BookState>(
-      listener: (context, BookState state) {
-        switch (state.runtimeType) {
-          case BookError:
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text((state as BookError).message),
-              ),
-            );
-            break;
-        }
-      },
+      listener: (context, BookState state) {},
       builder: (context, state) {
         switch (state.runtimeType) {
           case BookInitial:
@@ -66,9 +58,35 @@ class HomePage extends StatelessWidget {
             );
           case BookLoading:
             return Expanded(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: SizedBox(
+                  child: Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        children: List.generate(6, (index) {
+                          return Container(
+                            padding: EdgeInsets.all(10),
+                            margin: EdgeInsets.all(10),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  height: 10,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ))),
             );
           case BookLoaded:
             final books = (state as BookLoaded).books;
@@ -98,9 +116,10 @@ class HomePage extends StatelessWidget {
               ),
             );
           default:
+            final message = (state as BookError).message;
             return Expanded(
               child: Center(
-                child: Text('Ingresa un título para buscar'),
+                child: Text(message),
               ),
             );
         }

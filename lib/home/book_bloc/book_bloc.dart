@@ -29,6 +29,11 @@ class BookBloc extends Bloc<BookEvent, BookState> {
       var response = await http.get(uri);
       final res = jsonDecode(response.body);
 
+      if (res["totalItems"] == 0) {
+        emit(BookError(message: "No se encontraron resultados"));
+        return;
+      }
+
       var books = [];
       for (var book in res["items"]) {
         var image;
@@ -39,13 +44,26 @@ class BookBloc extends Bloc<BookEvent, BookState> {
               "https://www.thebookdesigner.com/wp-content/uploads/2018/04/type-color-filosofia-12on16-6x9-96.jpg";
         }
 
-        books.add({"title": book["volumeInfo"]["title"], "image": image});
+        var description;
+        try {
+          description = book["volumeInfo"]["description"];
+        } catch (e) {
+          description = null;
+        }
+
+        books.add({
+          "title": book["volumeInfo"]["title"],
+          "image": image,
+          "date": book["volumeInfo"]["publishedDate"],
+          "description": description ?? "No hay descripción disponible",
+          "pageCount": book["volumeInfo"]["pageCount"],
+        });
       }
 
       print("\tResponse received from API: ${res['items']}");
       emit(BookLoaded(books: books));
     } catch (error) {
-      emit(BookError(message: "Error while sending request to API: $error"));
+      emit(BookError(message: "Ha ocurrido un error: $error"));
     }
   }
 }
