@@ -86,7 +86,7 @@ class _BookDetailsState extends State<BookDetails> {
               Container(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
-                  'Páginas: ${args['pageCount']}',
+                  _getPageCount(args['pageCount']),
                   style: TextStyle(
                     fontSize: 16,
                   ),
@@ -110,8 +110,16 @@ class _BookDetailsState extends State<BookDetails> {
     );
   }
 
+  String _getPageCount(pageCount) {
+    if (pageCount == null) {
+      return 'Número de páginas: No disponible';
+    } else {
+      return 'Número de páginas: $pageCount';
+    }
+  }
+
   Widget _getDescription(String description, bool fullDescription) {
-    if (fullDescription) {
+    if (fullDescription || description.length < 250) {
       return Text(
         description,
         style: TextStyle(
@@ -120,23 +128,13 @@ class _BookDetailsState extends State<BookDetails> {
         ),
       );
     } else {
-      if (description.length > 250) {
-        return Text(
-          '${description.substring(0, 250)}...',
-          style: TextStyle(
-            fontSize: 14,
-            fontStyle: FontStyle.italic,
-          ),
-        );
-      } else {
-        return Text(
-          description,
-          style: TextStyle(
-            fontSize: 14,
-            fontStyle: FontStyle.italic,
-          ),
-        );
-      }
+      return Text(
+        '${description.substring(0, 250)}...',
+        style: TextStyle(
+          fontSize: 14,
+          fontStyle: FontStyle.italic,
+        ),
+      );
     }
   }
 }
